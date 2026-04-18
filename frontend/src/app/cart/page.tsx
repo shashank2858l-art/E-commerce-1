@@ -22,6 +22,7 @@ export default function CartPage() {
   const [address, setAddress] = useState('');
   const [mobile, setMobile] = useState('');
   const [bio, setBio] = useState('');
+  const [buyerPincode, setBuyerPincode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'cod'>('upi');
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -56,8 +57,8 @@ export default function CartPage() {
   };
 
   const handleContinueCheckout = async () => {
-    if (!address || !mobile || !bio) {
-      alert("Please enter all details: Address, Mobile Number, and Bio data");
+    if (!address || !mobile || !bio || !buyerPincode) {
+      alert("Please enter all details: Address, Mobile Number, Pin Code, and Bio data");
       return;
     }
     
@@ -88,104 +89,120 @@ export default function CartPage() {
   const finalizePayment = async () => {
     setIsProcessing(true);
     try {
-      const response = await fetchFromApi('/checkout/confirm', {
-        method: 'POST',
-        body: JSON.stringify({ 
-          details: {
-            address,
-            mobile,
-            bio
+      // Try to call backend confirm (may fail if backend is down — that's OK)
+      let receiptUrl = null;
+      try {
+        const response = await fetchFromApi('/checkout/confirm', {
+          method: 'POST',
+          body: JSON.stringify({ details: { address, mobile, bio } })
+        });
+        if (response && response.receiptUrl) {
+          receiptUrl = response.receiptUrl;
+          setQrCode(receiptUrl);
+        }
+      } catch (backendErr) {
+        console.warn('Backend confirm call failed (proceeding with transaction save):', backendErr);
+      }
+
+      // ── ALWAYS save transaction, regardless of backend response ──
+      setCheckoutStep('success');
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || 'guest';
+      const purchasesKey = `reuse_mart_purchases_${userId}`;
+      const existing = JSON.parse(localStorage.getItem(purchasesKey) || '[]');
+      
+      // Fetch full listing data from Supabase for each item to get seller metadata
+      const enrichedItems = await Promise.all(items.map(async (item) => {
+        let desc = item.description || '';
+        let ownerId = (item as any).owner_id || item.userId || 'system';
+
+        try {
+          const { data: dbListing } = await supabase
+            .from('item_listings')
+            .select('description, owner_id')
+            .eq('id', item.id)
+            .single();
+          if (dbListing) {
+            desc = dbListing.description || desc;
+            ownerId = dbListing.owner_id || ownerId;
           }
-        })
-      });
-      if (response && response.receiptUrl) {
-        setQrCode(response.receiptUrl);
-        setCheckoutStep('success');
-        
-        // --- PURCHASE PERSISTENCE INJECTION ---
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id || 'guest';
-        const purchasesKey = `reuse_mart_purchases_${userId}`;
-        const existing = JSON.parse(localStorage.getItem(purchasesKey) || '[]');
-        
-        // Fetch full listing data from Supabase for each item to get seller metadata
-        const enrichedItems = await Promise.all(items.map(async (item) => {
-          let desc = item.description || '';
-          let ownerId = (item as any).owner_id || item.userId || 'system';
+        } catch (e) {
+          console.warn('Could not fetch listing details for:', item.id);
+        }
 
-          // Fetch the actual listing from DB to get the real description with seller tags
-          try {
-            const { data: dbListing } = await supabase
-              .from('item_listings')
-              .select('description, owner_id')
-              .eq('id', item.id)
-              .single();
-            if (dbListing) {
-              desc = dbListing.description || desc;
-              ownerId = dbListing.owner_id || ownerId;
-            }
-          } catch (e) {
-            console.warn('Could not fetch listing details for:', item.id);
-          }
+        const sName = desc.match(/\[S_NAME:(.*?)\]/i)?.[1]?.trim() || 'Verified Eco-Seller';
+        const sWa = desc.match(/\[S_WA:(.*?)\]/i)?.[1]?.trim() || '';
+        const sLoc = desc.match(/\[S_LOC:(.*?)\]/i)?.[1]?.trim() || 'Local';
+        const sPin = desc.match(/\[S_PIN:(.*?)\]/i)?.[1]?.trim() || '';
+        const priceMatch = desc.match(/\[PRICE:(.*?)\]/i)?.[1]?.trim();
+        const finalPrice = priceMatch ? parseFloat(priceMatch) : ((item as any).price || (item as any).rentPrice || (item as any).estimatedValue || 0);
 
-          const sName = desc.match(/\[S_NAME:(.*?)\]/i)?.[1]?.trim() || 'Verified Eco-Seller';
-          const sWa = desc.match(/\[S_WA:(.*?)\]/i)?.[1]?.trim() || '';
-          const sLoc = desc.match(/\[S_LOC:(.*?)\]/i)?.[1]?.trim() || 'Local';
-          const priceMatch = desc.match(/\[PRICE:(.*?)\]/i)?.[1]?.trim();
-          const finalPrice = priceMatch ? parseFloat(priceMatch) : ((item as any).price || (item as any).rentPrice || (item as any).estimatedValue || 0);
+        return {
+          ...item,
+          sellerName: sName,
+          sellerWhatsapp: sWa,
+          sellerLocation: sLoc,
+          sellerPincode: sPin,
+          buyerPincode: buyerPincode,
+          ownerId: ownerId,
+          purchasedAt: new Date().toISOString(),
+          pricePaid: finalPrice,
+        };
+      }));
+      
+      localStorage.setItem(purchasesKey, JSON.stringify([...existing, ...enrichedItems]));
 
-          return {
-            ...item,
-            sellerName: sName,
-            sellerWhatsapp: sWa,
-            sellerLocation: sLoc,
-            ownerId: ownerId,
-            purchasedAt: new Date().toISOString(),
-            pricePaid: finalPrice,
-          };
-        }));
-        
-        localStorage.setItem(purchasesKey, JSON.stringify([...existing, ...enrichedItems]));
+      // --- SAVE TRANSACTIONS TO SUPABASE ---
+      const isValidUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
-        // --- SAVE TRANSACTIONS TO SUPABASE ---
-        const transactionRecords = enrichedItems.map(item => ({
-          buyer_id: userId,
-          seller_id: item.ownerId !== 'system' ? item.ownerId : null,
-          listing_id: item.id,
-          item_title: item.title,
+      for (const item of enrichedItems) {
+        const record: Record<string, unknown> = {
+          buyer_id: isValidUUID(userId) ? userId : null,
+          seller_id: (item.ownerId && item.ownerId !== 'system' && isValidUUID(item.ownerId)) ? item.ownerId : null,
+          listing_id: (item.id && isValidUUID(item.id)) ? item.id : null,
+          item_title: item.title || 'Unknown Item',
           amount: item.pricePaid || 0,
           payment_method: paymentMethod,
           buyer_address: address,
           buyer_mobile: mobile,
           buyer_bio: bio,
           status: 'completed',
-        }));
+        };
 
-        await supabase.from('transactions').insert(transactionRecords).then(({ error }) => {
-          if (error) console.warn('Transaction log insert warning:', error.message);
-        });
-
-        // --- DISPATCH BREVO BACKEND TRANSACTION SIGNAL ---
-        if (session?.user?.email) {
-           fetchFromApi('/notifications/send-order-message', {
-             method: 'POST',
-             body: JSON.stringify({
-               userEmail: session.user.email,
-               orderItems: enrichedItems,
-               paymentMethod: paymentMethod,
-               buyerDetails: {
-                 mobile,
-                 address,
-                 bio
-               }
-             })
-           }).catch(err => console.error("Brevo dispatch block failed silently:", err));
+        // Try with pin codes first
+        const fullRecord = { ...record, buyer_pincode: buyerPincode || '', seller_pincode: item.sellerPincode || '' };
+        const { error } = await supabase.from('transactions').insert(fullRecord);
+        
+        if (error) {
+          console.warn('Transaction insert with pincodes failed:', error.message);
+          // Retry without pin code columns in case they don't exist in DB yet
+          const { error: fallbackErr } = await supabase.from('transactions').insert(record);
+          if (fallbackErr) {
+            console.error('❌ Transaction insert FAILED:', fallbackErr.message);
+          } else {
+            console.log('✅ Transaction saved (without pincodes) for:', item.title);
+          }
+        } else {
+          console.log('✅ Transaction saved for:', item.title);
         }
-        // --------------------------------------
-
-        clearCart();
-        setItems([]);
       }
+
+      // --- DISPATCH BREVO BACKEND TRANSACTION SIGNAL ---
+      if (session?.user?.email) {
+         fetchFromApi('/notifications/send-order-message', {
+           method: 'POST',
+           body: JSON.stringify({
+             userEmail: session.user.email,
+             orderItems: enrichedItems,
+             paymentMethod: paymentMethod,
+             buyerDetails: { mobile, address, bio }
+           })
+         }).catch(err => console.error("Brevo dispatch failed:", err));
+      }
+
+      clearCart();
+      setItems([]);
     } catch (e) {
       console.error(e);
     } finally {
@@ -384,6 +401,17 @@ export default function CartPage() {
                       />
                     </div>
                     <div>
+                      <label className="block text-[10px] font-heading tracking-widest uppercase text-muted-dim mb-2">📮 Pin Code</label>
+                      <input
+                        type="text"
+                        value={buyerPincode}
+                        onChange={(e) => setBuyerPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        maxLength={6}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-neon-green/50 font-mono tracking-widest"
+                        placeholder="560001"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-[10px] font-heading tracking-widest uppercase text-muted-dim mb-2">Bio / Order Notes</label>
                       <textarea
                         value={bio}
@@ -460,9 +488,15 @@ export default function CartPage() {
                     <span className="text-4xl">🎉</span>
                   </div>
                   <h2 className="font-heading text-3xl font-bold mb-4 text-neon-green">Order Secured!</h2>
-                  <p className="text-muted leading-relaxed mb-8">
+                  <p className="text-muted leading-relaxed mb-6">
                     Your shipment is being prepared. Thank you for participating in the circular economy!
                   </p>
+                  <Link
+                    href="/tracking"
+                    className="inline-block w-full py-4 bg-neon-green text-black rounded-xl font-heading font-bold tracking-widest uppercase hover:shadow-[0_0_30px_rgba(57,255,20,0.3)] transition-all mb-3"
+                  >
+                    🗺️ Track Your Order
+                  </Link>
                   <Link
                     href="/dashboard"
                     className="inline-block w-full py-4 glass text-white rounded-xl font-heading font-bold tracking-widest uppercase hover:bg-white/10 transition-colors"

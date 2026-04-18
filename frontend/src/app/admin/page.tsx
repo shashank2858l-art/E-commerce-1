@@ -51,6 +51,8 @@ interface Transaction {
   buyer_address: string | null;
   buyer_mobile: string | null;
   buyer_bio: string | null;
+  buyer_pincode: string | null;
+  seller_pincode: string | null;
   status: string;
   created_at: string;
   buyer?: { full_name: string; email: string } | null;
@@ -840,6 +842,8 @@ export default function AdminPage() {
                           <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Amount</th>
                           <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Payment</th>
                           <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Buyer Contact</th>
+                          <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Pin Codes</th>
+                          <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Map</th>
                           <th className="p-4 text-[10px] font-heading font-bold tracking-widest uppercase text-muted-dim">Date</th>
                         </tr>
                       </thead>
@@ -872,12 +876,42 @@ export default function AdminPage() {
                                 {tx.buyer_address && <span className="block text-muted-dim text-[10px] truncate max-w-[150px]">📍 {tx.buyer_address}</span>}
                               </div>
                             </td>
+                            <td className="p-4">
+                              <div className="text-xs space-y-0.5">
+                                {tx.seller_pincode && <span className="block text-muted">🏠 Seller: <span className="font-mono text-neon-green font-bold">{tx.seller_pincode}</span></span>}
+                                {tx.buyer_pincode && <span className="block text-muted">📦 Buyer: <span className="font-mono text-blue-400 font-bold">{tx.buyer_pincode}</span></span>}
+                                {!tx.seller_pincode && !tx.buyer_pincode && tx.buyer_address && (
+                                  <span className="block text-muted-dim text-[10px]">📍 {tx.buyer_address.slice(0, 30)}...</span>
+                                )}
+                                {!tx.seller_pincode && !tx.buyer_pincode && !tx.buyer_address && <span className="text-muted-dim">—</span>}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              {(() => {
+                                const origin = tx.seller_pincode ? `${tx.seller_pincode}, India` : '';
+                                const dest = tx.buyer_pincode
+                                  ? `${tx.buyer_pincode}, India`
+                                  : (tx.buyer_address ? `${tx.buyer_address}, India` : '');
+                                if (!origin && !dest) return <span className="text-muted-dim text-[10px]">—</span>;
+                                const url = `https://www.google.com/maps/dir/${encodeURIComponent(origin)}/${encodeURIComponent(dest)}`;
+                                return (
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 px-2 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold tracking-wider uppercase hover:bg-blue-500/20 transition-all whitespace-nowrap"
+                                  >
+                                    🗺️ Map
+                                  </a>
+                                );
+                              })()}
+                            </td>
                             <td className="p-4 text-xs text-muted-dim">{timeAgo(tx.created_at)}</td>
                           </tr>
                         ))}
                         {allTransactions.length === 0 && (
                           <tr>
-                            <td colSpan={7} className="text-center py-12 text-muted-dim text-sm">No transactions recorded yet</td>
+                            <td colSpan={9} className="text-center py-12 text-muted-dim text-sm">No transactions recorded yet</td>
                           </tr>
                         )}
                       </tbody>

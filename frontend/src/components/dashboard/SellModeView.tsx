@@ -27,6 +27,7 @@ export default function SellModeView({ user, onAction, mode = 'sell' }: SellMode
   const [sellerName, setSellerName] = useState(user.name || '');
   const [sellerWhatsapp, setSellerWhatsapp] = useState('');
   const [sellerLocation, setSellerLocation] = useState('');
+  const [sellerPincode, setSellerPincode] = useState('');
 
   const [activeListings, setActiveListings] = useState<any[]>([]);
   const [listingCounts, setListingCounts] = useState({ buy: 0, rent: 0, swap: 0 });
@@ -150,7 +151,7 @@ export default function SellModeView({ user, onAction, mode = 'sell' }: SellMode
       await supabase.from('item_listings').insert({
         owner_id: session?.user?.id,
         title,
-        description: `${conditionDetails}\n\n[S_NAME:${sellerName}]\n[S_WA:${sellerWhatsapp}]\n[S_LOC:${sellerLocation}]\n[PRICE:${parseFloat(price) || 0}]`,
+        description: `${conditionDetails}\n\n[S_NAME:${sellerName}]\n[S_WA:${sellerWhatsapp}]\n[S_LOC:${sellerLocation}]\n[S_PIN:${sellerPincode}]\n[PRICE:${parseFloat(price) || 0}]`,
         category,
         condition: 'good',
         listing_type: mode === 'sell' ? 'buy' : mode,
@@ -370,9 +371,15 @@ export default function SellModeView({ user, onAction, mode = 'sell' }: SellMode
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-heading uppercase tracking-widest text-muted-dim">Pickup Location</label>
-              <input value={sellerLocation} onChange={(e) => setSellerLocation(e.target.value)} type="text" placeholder="e.g. Central Park (Meet at West Gate)" className="w-full bg-surface-high border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-neon-green/50 transition-colors" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-[10px] font-heading uppercase tracking-widest text-muted-dim">Pickup Location</label>
+                <input value={sellerLocation} onChange={(e) => setSellerLocation(e.target.value)} type="text" placeholder="e.g. Central Park (Meet at West Gate)" className="w-full bg-surface-high border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-neon-green/50 transition-colors" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-heading uppercase tracking-widest text-muted-dim">📮 Pin Code</label>
+                <input value={sellerPincode} onChange={(e) => setSellerPincode(e.target.value.replace(/\D/g, '').slice(0, 6))} type="text" placeholder="560001" maxLength={6} className="w-full bg-surface-high border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-neon-green/50 transition-colors font-mono tracking-widest" />
+              </div>
             </div>
 
             <div className="bg-neon-green/10 border border-neon-green/20 rounded-xl p-4 flex gap-3 text-neon-green items-start">

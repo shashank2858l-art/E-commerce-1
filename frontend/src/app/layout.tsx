@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import FAQHelpline from "@/components/layout/FAQHelpline";
 import Preloader from "@/components/layout/Preloader";
 import CursorTrail from "@/components/common/CursorTrail";
 import Chatbot from "@/components/common/Chatbot";
@@ -41,6 +42,7 @@ export default function RootLayout({
             <Preloader />
             <Navbar />
             <main className="flex-1">{children}</main>
+            <FAQHelpline />
             <Footer />
             <Chatbot />
           </CurrencyProvider>

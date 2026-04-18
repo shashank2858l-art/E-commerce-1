@@ -27,8 +27,8 @@ function MarketplaceContent() {
 
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
-    distance: 25,
-    priceRange: [0, 500],
+    distance: 50,
+    priceRange: [0, 5000],
     rating: 0,
     availability: false,
     sortBy: 'newest'
@@ -112,26 +112,40 @@ function MarketplaceContent() {
     // 1. Tab Filter
     let items = listings.filter((i) => i.type === activeTab);
 
-    // 2. Sidebar Filters
+    // 2. Category Filter — case-insensitive match against DB category values
     if (filters.category !== 'all') {
-      items = items.filter(i => i.category.toLowerCase() === filters.category);
+      items = items.filter(i => {
+        const itemCat = (i.category || '').toLowerCase();
+        const filterCat = filters.category.toLowerCase();
+        return itemCat === filterCat || itemCat.includes(filterCat) || filterCat.includes(itemCat);
+      });
     }
 
+    // 3. Rating Filter
     if (filters.rating > 0) {
       items = items.filter(i => (i.trustRating || 0) >= filters.rating);
     }
 
+    // 4. Availability Filter
     if (filters.availability) {
       items = items.filter(i => i.available);
     }
 
-    // Parse numeric distance string if available
+    // 5. Distance Filter
     items = items.filter(i => {
       const dist = parseInt((i.distance || '0').replace(/\D/g, '')) || 0;
       return dist <= filters.distance;
     });
 
-    // 3. Search text
+    // 6. Price Filter
+    if (filters.priceRange[1] < 5000) {
+      items = items.filter(i => {
+        const price = i.price || i.rentPrice || i.estimatedValue || 0;
+        return price <= filters.priceRange[1];
+      });
+    }
+
+    // 7. Search text
     if (search) {
       const q = search.toLowerCase();
       items = items.filter(
@@ -139,16 +153,21 @@ function MarketplaceContent() {
       );
     }
 
-    // Sort
+    // 8. Sort
     return items.sort((a, b) => {
       if (filters.sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       if (filters.sortBy === 'highest-rated') return (b.trustRating || 0) - (a.trustRating || 0);
+      if (filters.sortBy === 'cheapest') {
+        const priceA = a.price || a.rentPrice || a.estimatedValue || 0;
+        const priceB = b.price || b.rentPrice || b.estimatedValue || 0;
+        return priceA - priceB;
+      }
       if (filters.sortBy === 'nearest') {
         const dA = parseInt((a.distance || '0').replace(/\D/g, '')) || 0;
         const dB = parseInt((b.distance || '0').replace(/\D/g, '')) || 0;
         return dA - dB;
       }
-      return 0; // Default
+      return 0;
     });
 
   }, [activeTab, search, filters, listings]);
@@ -244,7 +263,7 @@ function MarketplaceContent() {
                 <h3 className="font-heading text-lg font-semibold mb-2">{t('mkt_empty')}</h3>
                 <p className="text-sm text-muted mb-6">{t('mkt_empty_desc')}</p>
                 <button
-                  onClick={() => { setFilters({ category: 'all', distance: 25, priceRange: [0, 500], rating: 0, availability: false, sortBy: 'newest' }); setSearch(''); }}
+                  onClick={() => { setFilters({ category: 'all', distance: 50, priceRange: [0, 5000], rating: 0, availability: false, sortBy: 'newest' }); setSearch(''); }}
                   className="px-4 py-2 text-sm font-heading font-semibold tracking-wider text-neon-green border border-neon-green/30 rounded-xl hover:bg-neon-green/5 transition-colors"
                 >
                   {t('mkt_clear')}

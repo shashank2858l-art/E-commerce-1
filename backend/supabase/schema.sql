@@ -157,6 +157,8 @@ CREATE TABLE IF NOT EXISTS transactions (
   buyer_address TEXT,
   buyer_mobile TEXT,
   buyer_bio TEXT,
+  buyer_pincode TEXT,
+  seller_pincode TEXT,
   status TEXT DEFAULT 'completed',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
