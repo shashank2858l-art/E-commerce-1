@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  /* DARK THEME (DEFAULT) */
-  --background: #09090b;
-  --foreground: #fafafa;
+  /* DARK THEME (DEFAULT) — Deep Green */
+  --background: #071a0e;
+  --foreground: #f0faf4;
   --font-heading: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   
@@ -13,15 +13,15 @@
   --neon-teal: #0DFFC6;
   --neon-dim: #2be800;
   
-  --surface: #111114;
-  --surface-low: #0a0a0c;
-  --surface-mid: #16161a;
-  --surface-high: #1e1e24;
-  --surface-highest: #28282f;
+  --surface: 12 28 18;
+  --surface-low: 8 22 14;
+  --surface-mid: 16 34 22;
+  --surface-high: 22 42 30;
+  --surface-highest: 30 52 38;
   
-  --muted: #888888;
-  --muted-dim: #555555;
-  --muted-dark: #333333;
+  --muted: #7faa8f;
+  --muted-dim: #4e7a5e;
+  --muted-dark: #2e5a3e;
 }
 
 /* Base Styles */
@@ -33,6 +33,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+select option {
+  background-color: rgb(var(--surface-high));
+  color: var(--foreground);
+}
+
 /* Selection */
 ::selection {
   background: rgba(57, 255, 20, 0.2);
@@ -41,8 +46,8 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #111; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-track { background: #0a1f12; }
+::-webkit-scrollbar-thumb { background: #2e5a3e; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #39FF14; }
 
   /* Glass morphism */
@@ -134,11 +139,11 @@ html.theme-light {
   --neon-teal: #00b38a;
   --neon-dim: #1d7a0b;
   
-  --surface: #ffffff;
-  --surface-low: #f7f7f9;
-  --surface-mid: #ededf1;
-  --surface-high: #e4e4e9;
-  --surface-highest: #dbdbe2;
+  --surface: 255 255 255;
+  --surface-low: 247 247 249;
+  --surface-mid: 237 237 241;
+  --surface-high: 228 228 233;
+  --surface-highest: 219 219 226;
   
   --muted: #555566;
   --muted-dim: #777788;

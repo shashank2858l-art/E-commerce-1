@@ -5,8 +5,8 @@ import fs from 'fs';
 
 const router = express.Router();
 
-// Ensure images directory exists
-const imagesDir = path.join(__dirname, '../images');
+// Ensure images directory exists (at project root: backend/images/)
+const imagesDir = path.resolve(__dirname, '..', '..', 'images');
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true });
 }

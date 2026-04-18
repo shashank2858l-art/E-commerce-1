@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { addToCart } from '@/utils/cart';
 import { useCurrency } from '@/context/CurrencyContext';
+import { API_URL } from '@/utils/api';
 
 const typeConfig: Record<string, { color: string; actionLabel: string }> = {
   swap: { color: '#39FF14', actionLabel: 'Request Swap' },
@@ -83,14 +84,29 @@ export default function DetailModal({
 
             {/* Image */}
             <div className="relative h-56 bg-surface-high flex items-center justify-center overflow-hidden flex-shrink-0">
-              {(item.image_url || item.imageUrl || item.image) ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={item.image_url || item.imageUrl || item.image} alt={item.title} className="w-full h-full object-contain bg-black/40 backdrop-blur-sm" />
-              ) : (
-                <span className="text-6xl opacity-20">
-                  {item.type === 'swap' ? '🔄' : item.type === 'rent' ? '📦' : item.type === 'food' ? '🍱' : '🔧'}
-                </span>
-              )}
+              {(() => {
+                let imgSrc = item.image_url || item.imageUrl || item.image || '';
+                if (imgSrc && imgSrc.startsWith('/')) {
+                  imgSrc = `${API_URL.replace('/api', '')}${imgSrc}`;
+                }
+                return imgSrc ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img 
+                    src={imgSrc} 
+                    alt={item.title} 
+                    className="w-full h-full object-contain bg-black/40 backdrop-blur-sm"
+                    onError={(e) => {
+                      if(!e.currentTarget.src.includes('placehold.co')) {
+                        e.currentTarget.src = `https://placehold.co/400x300/1a1a1a/39ff14?text=${encodeURIComponent(item.title)}`;
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="text-6xl opacity-20">
+                    {item.type === 'swap' ? '🔄' : item.type === 'rent' ? '📦' : item.type === 'food' ? '🍱' : '🔧'}
+                  </span>
+                );
+              })()}
             </div>
 
             {/* Content */}

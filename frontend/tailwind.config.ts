@@ -17,11 +17,11 @@ const config: Config = {
           dim: 'var(--neon-dim)',
         },
         surface: {
-          DEFAULT: 'var(--surface)',
-          low: 'var(--surface-low)',
-          mid: 'var(--surface-mid)',
-          high: 'var(--surface-high)',
-          highest: 'var(--surface-highest)',
+          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
+          low: 'rgb(var(--surface-low) / <alpha-value>)',
+          mid: 'rgb(var(--surface-mid) / <alpha-value>)',
+          high: 'rgb(var(--surface-high) / <alpha-value>)',
+          highest: 'rgb(var(--surface-highest) / <alpha-value>)',
         },
         accent: {
           green: 'var(--neon-green)',

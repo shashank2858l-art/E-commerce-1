@@ -140,19 +140,19 @@ export default function Navbar() {
           <select 
             value={lang} 
             onChange={(e) => setLang(e.target.value as any)}
-            className="bg-surface-high/50 text-foreground text-xs border border-white/10 rounded-lg px-2 py-1.5 outline-none cursor-pointer focus:border-neon-green/50 transition-colors"
+            className="bg-surface-high text-foreground text-xs border border-white/10 rounded-lg px-2 py-1.5 outline-none cursor-pointer focus:border-neon-green/50 transition-colors"
           >
-            <option value="en">English</option>
-            <option value="hi">हिंदी (HI)</option>
-            <option value="kn">ಕನ್ನಡ (KN)</option>
+            <option value="en" className="bg-surface-high text-foreground">English</option>
+            <option value="hi" className="bg-surface-high text-foreground">हिंदी (HI)</option>
+            <option value="kn" className="bg-surface-high text-foreground">ಕನ್ನಡ (KN)</option>
           </select>
           <select 
             value={currency} 
             onChange={(e) => setCurrency(e.target.value as any)}
-            className="bg-surface-high/50 text-foreground text-xs border border-white/10 rounded-lg px-2 py-1.5 outline-none cursor-pointer focus:border-neon-green/50 transition-colors"
+            className="bg-surface-high text-foreground text-xs border border-white/10 rounded-lg px-2 py-1.5 outline-none cursor-pointer focus:border-neon-green/50 transition-colors"
           >
-            <option value="INR">₹ INR</option>
-            <option value="USD">$ USD</option>
+            <option value="INR" className="bg-surface-high text-foreground">₹ INR</option>
+            <option value="USD" className="bg-surface-high text-foreground">$ USD</option>
           </select>
 
           <motion.button

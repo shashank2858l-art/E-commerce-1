@@ -138,18 +138,6 @@ export default function Hero() {
               style={{ perspective: 1000 }}
               className="relative w-full aspect-square max-w-[500px] flex items-center justify-center transform-gpu"
             >
-              {/* Spinning rings representing circular economy */}
-              <motion.div 
-                animate={{ rotate: 360 }} 
-                transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-                className="absolute inset-0 rounded-full border border-neon-green/20 border-dashed"
-              />
-              <motion.div 
-                animate={{ rotate: -360 }} 
-                transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
-                className="absolute inset-8 rounded-full border-2 border-accent-teal/10 border-dotted"
-              />
-              
               {/* Geometric Core Object */}
               <div className="relative w-64 h-64">
                 <motion.div 

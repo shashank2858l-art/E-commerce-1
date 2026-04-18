@@ -27,8 +27,8 @@ import chatRoutes from './routes/chat';
 import notificationRoutes from './routes/notifications';
 import path from 'path';
 
-// Serve uploaded images statically
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// Serve uploaded images statically (images dir is at project root, not inside src/)
+app.use('/images', express.static(path.resolve(__dirname, '..', 'images')));
 
 app.use('/api/users', userRoutes);
 app.use('/api/listings', listingsRoutes);

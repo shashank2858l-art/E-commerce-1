@@ -76,13 +76,13 @@ function MarketplaceContent() {
       const upcycle = await fetchFromApi('/upcycle');
 
       const formattedItems = (items || []).filter((i: any) => i.status === 'approved').map((i: any) => generateMockItemData({
-        id: i.id, type: i.listing_type === 'swap' ? 'swap' : (i.listing_type === 'rent' ? 'rent' : 'buy'), title: i.title, description: i.description || '', image: i.image_url, category: i.category, condition: i.condition, location: 'Local', available: true, userId: i.owner_id, userName: i.profiles?.full_name || 'User', userAvatar: i.profiles?.avatar_url || '👤', trustBadge: true, createdAt: i.created_at, price: i.price
+        id: i.id, type: i.listing_type === 'swap' ? 'swap' : (i.listing_type === 'rent' ? 'rent' : 'buy'), title: i.title, description: i.description || '', image: i.image_url, image_url: i.image_url, category: i.category, condition: i.condition, location: 'Local', available: true, userId: i.owner_id, userName: i.profiles?.full_name || 'User', userAvatar: i.profiles?.avatar_url || '👤', trustBadge: true, createdAt: i.created_at, price: i.price
       }));
       const formattedFood = (food || []).map((f: any) => generateMockItemData({
-        id: f.id, type: 'buy', title: f.title, description: f.description || '', image: f.image_url, category: 'food', location: f.location, available: f.status === 'available', userId: f.donor_id, userName: f.profiles?.full_name || 'Cafe', userAvatar: f.profiles?.avatar_url || '🥪', trustBadge: true, createdAt: f.created_at, quantity: f.quantity, price: f.price
+        id: f.id, type: 'buy', title: f.title, description: f.description || '', image: f.image_url, image_url: f.image_url, category: 'food', location: f.location, available: f.status === 'available', userId: f.donor_id, userName: f.profiles?.full_name || 'Cafe', userAvatar: f.profiles?.avatar_url || '🥪', trustBadge: true, createdAt: f.created_at, quantity: f.quantity, price: f.price
       }));
       const formattedUpcycle = (upcycle || []).map((u: any) => generateMockItemData({
-        id: u.id, type: 'swap', title: u.material_type, description: u.description || '', image: u.image_url, category: 'materials', location: 'Local', available: u.status === 'available', userId: u.provider_id, userName: u.profiles?.full_name || 'Provider', userAvatar: u.profiles?.avatar_url || '🔨', trustBadge: false, createdAt: u.created_at, weight: `${u.weight_kg}kg`, price: u.price
+        id: u.id, type: 'swap', title: u.material_type, description: u.description || '', image: u.image_url, image_url: u.image_url, category: 'materials', location: 'Local', available: u.status === 'available', userId: u.provider_id, userName: u.profiles?.full_name || 'Provider', userAvatar: u.profiles?.avatar_url || '🔨', trustBadge: false, createdAt: u.created_at, weight: `${u.weight_kg}kg`, price: u.price
       }));
 
       const allListings = [...formattedItems, ...formattedFood, ...formattedUpcycle];

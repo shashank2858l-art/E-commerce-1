@@ -78,42 +78,48 @@ export default function HotDeals() {
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ delay: i * 0.15, type: 'spring', stiffness: 100 }}
               >
-                <Link
-                  href={deal.link}
-                  className="group block glass rounded-3xl overflow-hidden border border-white/10 hover:border-accent-orange/40 transition-all duration-500 shadow-[0_10px_40px_rgba(0,0,0,0.5)] relative"
-                >
-                  {/* Hover glow */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_50%_80%,rgba(255,149,0,0.8),transparent_70%)]" />
+                <div style={{ perspective: '1200px' }} className="h-[420px]">
+                  <Link
+                    href={deal.link}
+                    className="group block relative w-full h-full transform-style-3d"
+                  >
+                    {/* Background Card that tilts backwards */}
+                    <div className="absolute inset-x-0 bottom-0 top-16 glass rounded-3xl border border-white/10 group-hover:border-accent-orange/40 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_10px_40px_rgba(0,0,0,0.5)] group-hover:[transform:rotateX(20deg)] group-hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9)] origin-bottom overflow-hidden">
+                      {/* Hover glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,rgba(255,149,0,1),transparent_70%)]" />
+                      
+                      {/* Top accent line */}
+                      <div className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-accent-orange to-transparent" />
 
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-accent-orange to-transparent" />
-
-                  {/* Image */}
-                  <div className="relative w-full aspect-square bg-surface-high/50 overflow-hidden">
-                    <Image
-                      src={deal.image}
-                      alt={deal.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                    />
-                    {/* Price badge */}
-                    <div className="absolute bottom-4 right-4 glass px-4 py-2 rounded-xl border border-white/20 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-                      <span className="font-heading font-black text-lg text-neon-green drop-shadow-[0_0_8px_rgba(57,255,20,0.6)]">
-                        {deal.price}
-                      </span>
+                      {/* Info (kept inside the tilted card) */}
+                      <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-heading text-lg font-bold text-white group-hover:text-neon-green transition-colors duration-300">
+                            {deal.title}
+                          </h3>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-heading font-black text-2xl text-neon-green drop-shadow-[0_0_8px_rgba(57,255,20,0.6)]">
+                            {deal.price}
+                          </span>
+                          <span className="text-sm font-heading font-bold uppercase tracking-wider text-accent-orange group-hover:translate-x-1 transition-transform duration-300">
+                            View →
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Info */}
-                  <div className="p-6 flex items-center justify-between">
-                    <h3 className="font-heading text-lg font-bold text-white group-hover:text-neon-green transition-colors duration-300">
-                      {deal.title}
-                    </h3>
-                    <span className="text-sm font-heading font-bold uppercase tracking-wider text-accent-orange group-hover:translate-x-1 transition-transform duration-300">
-                      View →
-                    </span>
-                  </div>
-                </Link>
+                    {/* Popping Image Foreground (overlaps the card top) */}
+                    <div className="absolute inset-x-4 bottom-[80px] top-0 z-20 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-8 group-hover:scale-[1.25] drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)] group-hover:drop-shadow-[0_40px_40px_rgba(0,0,0,0.9)] opacity-90 group-hover:opacity-100">
+                      <Image
+                        src={deal.image}
+                        alt={deal.title}
+                        fill
+                        className="object-contain object-bottom mix-blend-screen"
+                      />
+                    </div>
+                  </Link>
+                </div>
               </motion.div>
             ))}
           </div>

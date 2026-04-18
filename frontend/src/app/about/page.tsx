@@ -29,9 +29,9 @@ export default function AboutPage() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-5xl md:text-7xl font-heading font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400"
           >
-            The <span className="text-neon-green/90 drop-shadow-[0_0_15px_rgba(57,255,20,0.4)]">Circular</span> Economy
+            The <span className="text-neon-green drop-shadow-[0_0_15px_rgba(57,255,20,0.4)]">Circular</span> Economy
           </motion.h1>
-          <p className="text-xl md:text-2xl text-muted-dim max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-foreground opacity-80 max-w-3xl mx-auto leading-relaxed">
             Reuse_Mart is a revolutionary digital marketplace engineered strictly for environmental sustainability. Our mission is to fundamentally eliminate excessive consumer waste by empowering localized communities to swap, rent, and sustainably sell goods.
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function AboutPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <h2 className="text-3xl font-heading font-bold mb-4 text-white group-hover:text-neon-green transition-colors">Our Mission</h2>
-            <p className="text-muted leading-relaxed">
+            <p className="text-foreground border-white/20 opacity-80 leading-relaxed">
               Every day, thousands of perfectly functional items are thrown into landfills while others buy them completely brand new. We act as the technical bridge to stop this linear consumption cycle. By providing an elite, high-performance platform for trading, we intend to make sustainable decisions the easiest possible choice.
             </p>
           </motion.div>
@@ -58,7 +58,7 @@ export default function AboutPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <h2 className="text-3xl font-heading font-bold mb-4 text-white group-hover:text-accent-teal transition-colors">Carbon Tracking</h2>
-            <p className="text-muted leading-relaxed">
+            <p className="text-foreground border-white/20 opacity-80 leading-relaxed">
               We don't just facilitate sales; we actively compute the environmental metrics! For every transaction processed on our platform, our algorithms calculate the estimated amount of CO₂ emissions you personally prevented from entering the atmosphere compared to buying newly manufactured alternatives.
             </p>
           </motion.div>
